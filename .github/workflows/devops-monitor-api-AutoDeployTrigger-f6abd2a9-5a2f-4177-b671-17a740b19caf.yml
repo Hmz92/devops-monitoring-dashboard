@@ -42,3 +42,4 @@ jobs:
           resourceGroup: devops-monitor-rg
           imageToBuild: devopsmonitorhamza.azurecr.io/devops-monitor-api:${{ github.sha }}
           dockerfilePath: api/Dockerfile
+          targetPort: 8000
