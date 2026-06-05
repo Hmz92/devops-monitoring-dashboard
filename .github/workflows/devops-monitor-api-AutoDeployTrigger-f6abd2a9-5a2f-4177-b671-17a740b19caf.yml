@@ -1,0 +1,49 @@
+name: Trigger auto deployment for devops-monitor-api
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ main ]
+    paths:
+    - '**'
+    - '.github/workflows/devops-monitor-api-AutoDeployTrigger-f6abd2a9-5a2f-4177-b671-17a740b19caf.yml'
+
+  # Allow manual trigger 
+  workflow_dispatch:      
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions: 
+      id-token: write #This is required for requesting the OIDC JWT Token
+      contents: read #Required when GH token is used to authenticate with private repo
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.DEVOPSMONITORAPI_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.DEVOPSMONITORAPI_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.DEVOPSMONITORAPI_AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }}api
+          _dockerfilePathKey_: _dockerfilePath_
+          _targetLabelKey_: _targetLabel_
+          registryUrl: devopsmonitorhamza.azurecr.io
+          registryUsername: ${{ secrets.DEVOPSMONITORAPI_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.DEVOPSMONITORAPI_REGISTRY_PASSWORD }}
+          containerAppName: devops-monitor-api
+          resourceGroup: devops-monitor-rg
+          imageToBuild: devopsmonitorhamza.azurecr.io/devops-monitor-api:${{ github.sha }}
+          _buildArgumentsKey_: |
+            _buildArgumentsValues_
+
+
