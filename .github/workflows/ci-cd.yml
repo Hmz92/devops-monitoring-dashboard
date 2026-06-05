@@ -23,16 +23,14 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 pytest pytest-cov -r Day5/devops-monitor/requirements.txt
+          pip install flake8 pytest pytest-cov -r requirements.txt
 
       - name: Run lint
         run: |
-          cd Day5/devops-monitor
           make lint
 
       - name: Run tests
         run: |
-          cd Day5/devops-monitor
           make test
 
   build:
@@ -52,13 +50,11 @@ jobs:
 
       - name: Build and Push API Image
         run: |
-          cd Day5/devops-monitor
           docker build -f api/Dockerfile -t ${{ secrets.ACR_NAME }}.azurecr.io/devops-monitor-api:latest .
           docker push ${{ secrets.ACR_NAME }}.azurecr.io/devops-monitor-api:latest
 
       - name: Build and Push Dashboard Image
         run: |
-          cd Day5/devops-monitor
           docker build -f dashboard/Dockerfile -t ${{ secrets.ACR_NAME }}.azurecr.io/devops-monitor-dashboard:latest .
           docker push ${{ secrets.ACR_NAME }}.azurecr.io/devops-monitor-dashboard:latest
 
